@@ -28,7 +28,10 @@ export default function NewProduct() {
                     to={"/"}
                     className="flex items-center"
                 >
-                    <ArrowLeftCircleIcon className="w-8 h-8 text-slate-500 hover:text-slate-400 transition-all"/>
+                    <div className=" bg-slate-500 text-white flex justify-center items-center gap-1 px-2 py-1 rounded-xl transition-all hover:bg-slate-400">
+                        <p>Volver</p>
+                        <ArrowLeftCircleIcon className="h-7"/>
+                    </div>
                 </Link>
                 </div>
 
@@ -46,7 +49,7 @@ export default function NewProduct() {
                         <input 
                             id="name"
                             type="text"
-                            className="mt-2 block w-full p-3 bg-gray-50"
+                            className="mt-2 block w-full p-3 bg-gray-100"
                             placeholder="Nombre del Producto"
                             {...register('name', {required: 'El nombre es obligatorio'})}
                         />
@@ -60,7 +63,7 @@ export default function NewProduct() {
                         <input 
                             id="price"
                             type="number"
-                            className="mt-2 block w-full p-3 bg-gray-50"
+                            className="mt-2 block w-full p-3 bg-gray-100"
                             placeholder="Precio Producto. ej. 200, 300"
                             {...register('price', {required: 'El precio es obligatorio'})}
                         />
@@ -68,7 +71,7 @@ export default function NewProduct() {
                     </div>
                     <input
                     type="submit"
-                    className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded"
+                    className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded transition hover:bg-indigo-700"
                     value="Registrar Producto"
                     />
                 </Form>

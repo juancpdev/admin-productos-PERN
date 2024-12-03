@@ -4,6 +4,7 @@ import { formatCurrency } from "../utils";
 import { ActionFunctionArgs, Form, Link, redirect, useFetcher } from "react-router-dom";
 import { deleteProduct } from "../services/ProductServices";
 import Swal from "sweetalert2";
+import Toggle from 'react-toggle'
 
 type ProductDetailsProp = {
     product: Product
@@ -19,10 +20,11 @@ export async function action({params} : ActionFunctionArgs) {
 export default function ProductDetails({product} : ProductDetailsProp) {
     const fetcher = useFetcher()
 
-    const isAvailability = product.availability
-
     return (
-        <tr className="border-b text-center">
+        <tr className="border-t text-center">
+            <td className="p-3 text-lg text-gray-800">
+                {product.id}
+            </td>
             <td className="p-3 text-lg text-gray-800">
                 {product.name}
             </td>
@@ -31,8 +33,16 @@ export default function ProductDetails({product} : ProductDetailsProp) {
                 { formatCurrency(product.price) }
             </td>
 
-            <td className="p-3 text-lg text-gray-800">
-                {isAvailability ? 'Disponible' : 'No Disponible'}
+            <td className="p-3 text-lg text-gray-800 ">
+                <fetcher.Form method="POST" className="flex justify-center">
+                    <Toggle
+                        defaultChecked={product.availability}
+                        onChange={(e) => {
+                            e.currentTarget.form?.requestSubmit()
+                        }}
+                    />
+                    <input type="hidden" name="id" value={product.id} />
+                </fetcher.Form>
             </td>
             
             <td className="p-3 text-lg text-gray-800">
@@ -44,9 +54,10 @@ export default function ProductDetails({product} : ProductDetailsProp) {
                     </Link>
                     <Form
                         method="POST"
+                        className="flex justify-center"
                         action={`productos/eliminar/${product.id}`}
                         onSubmit={ async (e) => {
-                            e.preventDefault() // Evita el envío inmediato del formulario
+                            e.preventDefault()
                             const result = await Swal.fire({
                                 title: "¿Quieres eliminar el producto?",
                                 text: "No podrás revertir esto.",
@@ -64,7 +75,7 @@ export default function ProductDetails({product} : ProductDetailsProp) {
                         }}
                     >
                         <button type="submit">
-                            <TrashIcon className="w-6 cursor-pointer hover:text-gray-500" />
+                            <TrashIcon className="w-6 cursor-pointer text-red-600 hover:text-red-400" />
                         </button>
                     </Form>
                 </div>

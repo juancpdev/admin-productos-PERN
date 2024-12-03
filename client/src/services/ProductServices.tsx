@@ -34,7 +34,6 @@ export async function getProducts() {
         const url = `${import.meta.env.VITE_API_URL}/api/products`
         const { data }  = await axios(url)
         const result = safeParse(ProductsSchema, data.data )
-        console.log(result);
         
         if(result.success) {
             return result.output
@@ -82,6 +81,16 @@ export async function editProduct(data : ProductData, id : Product['id']) {
             throw new Error('Datos no validos')
         }
         
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function updateAvailability(id : Product['id']) {
+
+    try {
+        const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`
+        await axios.patch(url)
     } catch (error) {
         console.log(error);
     }

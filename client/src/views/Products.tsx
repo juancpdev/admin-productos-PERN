@@ -1,17 +1,27 @@
-import {Link, useLoaderData} from "react-router-dom"
+import {ActionFunctionArgs, Link, useLoaderData} from "react-router-dom"
 import { PlusCircleIcon } from "@heroicons/react/24/solid"
-import { getProducts } from "../services/ProductServices"
+import { getProducts, updateAvailability } from "../services/ProductServices"
 import { Product } from "../types"
 import ProductDetails from "../components/ProductDetails"
+import { useMemo } from "react"
 
 export async function loaders() {
   const products = await getProducts()
   return products
 }
 
+export async function action({request} : ActionFunctionArgs) {
+  const formData = await request.formData()
+  const data = Object.fromEntries(formData)
+  await updateAvailability(+data.id)
+  return {}
+}
+
 export default function Products() {
 
   const products = useLoaderData() as Product[]
+
+  const isEmpty = useMemo(() => products.length > 0, [products])
 
   return (
     <>
@@ -21,15 +31,19 @@ export default function Products() {
             <Link
                 to={"productos/nuevo"}
                 className="flex items-center"
-            >
-                <PlusCircleIcon className="w-8 h-8 text-slate-500 hover:text-slate-400 transition-all"/>
+            > 
+                <div className=" bg-slate-500 text-white flex justify-center items-center gap-1 px-2 py-1 rounded-xl transition-all hover:bg-slate-400">
+                  <p>Agregar</p>
+                  <PlusCircleIcon className="h-7"/>
+                </div>
             </Link>
         </div>
 
-        <div className="p-2">
-          <table className="w-full mt-5 table-auto">
+        <div className="pt-2">
+          <table className="w-full mt-5 table-auto shadow-md rounded-xl bg-white">
             <thead className="bg-slate-800 text-white">
                 <tr>
+                    <th className="p-2">ID</th>
                     <th className="p-2">Producto</th>
                     <th className="p-2">Precio</th>
                     <th className="p-2">Disponibilidad</th>
@@ -45,6 +59,7 @@ export default function Products() {
               ))}
             </tbody>
           </table>
+          {!isEmpty ? <p className="text-center mt-10 text-lg">Aún no hay productos</p> : null}
         </div>
     </>
   )

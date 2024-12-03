@@ -48,7 +48,10 @@ export default function EditProduct() {
                     to={"/"}
                     className="flex items-center"
                 >
-                    <ArrowLeftCircleIcon className="w-8 h-8 text-slate-500 hover:text-slate-400 transition-all"/>
+                    <div className=" bg-slate-500 text-white flex justify-center items-center gap-1 px-2 py-1 rounded-xl transition-all hover:bg-slate-400">
+                        <p>Volver</p>
+                        <ArrowLeftCircleIcon className="h-7"/>
+                    </div>
                 </Link>
                 </div>
 
@@ -66,7 +69,7 @@ export default function EditProduct() {
                         <input 
                             id="name"
                             type="text"
-                            className="mt-2 block w-full p-3 bg-gray-50"
+                            className="mt-2 block w-full p-3 bg-gray-100"
                             placeholder="Nombre del Producto"
                             defaultValue={product.name}
                             {...register('name', {required: 'El nombre es obligatorio'})}
@@ -81,7 +84,7 @@ export default function EditProduct() {
                         <input 
                             id="price"
                             type="number"
-                            className="mt-2 block w-full p-3 bg-gray-50"
+                            className="mt-2 block w-full p-3 bg-gray-100"
                             placeholder="Precio Producto. ej. 200, 300"
                             defaultValue={product.price}
                             {...register('price', {required: 'El precio es obligatorio'})}
@@ -111,7 +114,7 @@ export default function EditProduct() {
                     </div>
                     <input
                     type="submit"
-                    className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded"
+                    className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded transition hover:bg-indigo-700"
                     value="Guardar Cambios"
                     />
                 </Form>
