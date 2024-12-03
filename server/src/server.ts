@@ -5,6 +5,7 @@ import colors from 'colors'
 import cors, {CorsOptions} from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import swaggerSpec, {swaggerUiOptions} from './config/swagger'
+import morgan from 'morgan'
 
 // Conectar a la BD
 export async function connectDB() {
@@ -26,17 +27,19 @@ export const server  = express()
 // Permitir conexiones
 const CorsOptions : CorsOptions = {
     origin: function(origin, callback) {
-        if(origin === 'http://localhost:5173') {
-            console.log('permitir');
+        if(origin === process.env.FRONTEND_URL) {
+            callback(null, true)
         } else {
-            console.log('no permitir');
+            callback(new Error('Error de CORS'))
         }
     }
 }
+server.use(cors(CorsOptions))
 
 // Leer datos de formularios
 server.use(express.json())
 
+server.use(morgan('dev'))
 server.use('/api/products', router)
 
 // Docs
