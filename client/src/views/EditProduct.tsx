@@ -1,21 +1,11 @@
-import { Form, Link, LoaderFunctionArgs, redirect, useLoaderData, useNavigate} from "react-router-dom"
+import { Form, Link, useLoaderData, useNavigate} from "react-router-dom"
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/solid"
 import { useForm } from "react-hook-form"
 import Errors from "../components/Errors";
-import { editProduct, getProductsById, ProductData } from "../services/ProductServices";
+import { editProduct, ProductData } from "../services/ProductServices";
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from "../types";
 
-export async function loaders({params} : LoaderFunctionArgs) {
-    if(params.id !== undefined) {
-        const product = await getProductsById(+params.id)
-        if(!product) {
-            return redirect('/')
-        }
-        return product
-    }
-
-}
 
 const availabilityOptions = [
     {name: 'Disponible', value: true},

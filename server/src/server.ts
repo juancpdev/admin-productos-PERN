@@ -25,15 +25,22 @@ connectDB()
 export const server  = express()
 
 // Permitir conexiones
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:4000'
+];
+ 
 const CorsOptions : CorsOptions = {
-    origin: function(origin, callback) {
-        if(origin === process.env.FRONTEND_URL) {
-            callback(null, true)
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
         } else {
-            callback(new Error('Error de CORS'))
+            // Denegar acceso si el origen no está en la lista
+            callback(new Error('Error de CORS: Dominio no autorizado'));
         }
     }
-}
+};
+ 
 server.use(cors(CorsOptions))
 
 // Leer datos de formularios

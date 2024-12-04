@@ -23,7 +23,7 @@ const testPriceValidation = (method : 'post' | 'put', url : string) => {
 }
 
 // Testing in GET, PUT and DELETE
-const idNotValidate = (method : 'get' | 'put' | 'patch' | 'delete', send?: object ) => {
+const idNotValidate = (method : 'get' | 'put' | 'delete', send?: object ) => {
     it('should check a valid ID in the URL', async () => {
         const response = await request(server)[method]('/api/products/not-valid-url').send(send)
 
@@ -34,8 +34,8 @@ const idNotValidate = (method : 'get' | 'put' | 'patch' | 'delete', send?: objec
     })
 }
 
-// Testing in GET, PUT, PATCH and DELETE
-const productNonExist = (method : 'get' | 'put' | 'patch' | 'delete', send?: object ) => {
+// Testing in GET, PUT and DELETE
+const productNonExist = (method : 'get' | 'put' | 'delete', send?: object ) => {
     it('should return 404 response for a non-exist product', async () => {
         const productId = 2000
         const response = await request(server)[method](`/api/products/${productId}`).send(send)
@@ -141,20 +141,71 @@ describe('PUT /api/products/:id', () => {
     })
 })
 
-describe('PATCH /api/products/:id', () => { 
+describe('PATCH /api/products/availability/:id', () => { 
     // Si hay errores a futuro borrar idNotValidate de PATCH (lo agregue ya haciendo la doc porq pense q me faltaba)
-    idNotValidate('patch', { 
-        availability: true,
+    it('should check a valid ID in the URL', async () => {
+        const response = await request(server).patch('/api/products/availability/not-valid-url/').send({availability : true})
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.errors[0].msg).toBe("ID no válido")
     })
 
-    productNonExist('patch', { 
-        name: 'new name',
-        availability: true,
-        price: 300
+    it('should return 404 response for a non-exist product', async () => {
+        const productId = 2000
+        const response = await request(server).patch(`/api/products/availability/${productId}`).send({ 
+            name: 'new name',
+            availability: true,
+            price: 300
+        })
+
+        expect(response.status).toBe(404)
+        expect(response.body.error).toBe("Producto no encontrado")
+
+        expect(response.status).not.toBe(200)
+        expect(response.body).not.toHaveProperty('data')
     })
 
     it('should update the product availability', async () => {
-        const response = await request(server).patch('/api/products/1')
+        const response = await request(server).patch('/api/products/availability/1')
+        expect(response.status).toBe(200)
+        expect(response.body).toHaveProperty('data')
+        expect(response.body.data.availability).toBe(false)
+
+        expect(response.status).not.toBe(404)
+        expect(response.status).not.toBe(400)
+        expect(response.body).not.toHaveProperty('error')
+    })
+})
+
+describe('PATCH /api/products/price/:id', () => {
+    it('should check a valid ID in the URL', async () => {
+        const response = await request(server).patch('/api/products/price/not-valid-url/').send({availability : true})
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.errors[0].msg).toBe("ID no válido")
+    })
+
+    it('should return 404 response for a non-exist product', async () => {
+        const productId = 2000
+        const response = await request(server).patch(`/api/products/price/${productId}`).send({ 
+            name: 'new name',
+            availability: true,
+            price: 300
+        })
+
+        expect(response.status).toBe(404)
+        expect(response.body.error).toBe("Producto no encontrado")
+
+        expect(response.status).not.toBe(200)
+        expect(response.body).not.toHaveProperty('data')
+    })
+
+    it('should update the product availability', async () => {
+        const response = await request(server).patch('/api/products/price/1')
         expect(response.status).toBe(200)
         expect(response.body).toHaveProperty('data')
         expect(response.body.data.availability).toBe(false)

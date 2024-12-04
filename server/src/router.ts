@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updateProduct } from "./handlers/products";
+import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updatePrice, updateProduct } from "./handlers/products";
 import { body, param } from "express-validator";
 import { handleInputErrors } from "./middleware";
 
@@ -186,7 +186,7 @@ router.put('/:id',
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/products/availability/{id}:
  *      patch:
  *          summary: Update Product availability
  *          tags:
@@ -211,10 +211,43 @@ router.put('/:id',
  *              404:
  *                  description: Not found
  */
-router.patch('/:id', 
+router.patch('/availability/:id', 
     param('id').isInt().withMessage('ID no válido'),
     handleInputErrors,
     updateAvailability
+)
+
+/**
+ * @swagger
+ * /api/products/price/{id}:
+ *      patch:
+ *          summary: Update Product price
+ *          tags:
+ *              - Products
+ *          description: Return the updated price
+ *          parameters:
+ *            - in: path
+ *              name: id
+ *              description: The ID of the product to retrieve
+ *              required: true
+ *              schema:
+ *                  type: integer
+ *          responses:
+ *              200:
+ *                  description: Product price successfully
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Product'
+ *              400:
+ *                  description: Bad Request - invalid input data
+ *              404:
+ *                  description: Not found
+ */
+router.patch('/price/:id', 
+    param('id').isInt().withMessage('ID no válido'),
+    handleInputErrors,
+    updatePrice
 )
 
 /**

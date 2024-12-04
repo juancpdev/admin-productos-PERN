@@ -89,8 +89,17 @@ export async function editProduct(data : ProductData, id : Product['id']) {
 export async function updateAvailability(id : Product['id']) {
 
     try {
-        const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`
+        const url = `${import.meta.env.VITE_API_URL}/api/products/availability/${id}`
         await axios.patch(url)
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function updatePrice(id: Product['id'], newPrice: number) {
+    try {
+        const url = `${import.meta.env.VITE_API_URL}/api/products/price/${id}`;
+        await axios.patch(url, { price: newPrice });
     } catch (error) {
         console.log(error);
     }
