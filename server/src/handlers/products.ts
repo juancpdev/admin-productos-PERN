@@ -70,9 +70,11 @@ export const updateAvailability = async (req : Request, res : Response)  => {
 
 export const updatePrice = async (req : Request, res : Response)  => {
     try {
+        
         const { id } = req.params
         const product = await Product.findByPk(id)
         const { price } = req.body
+        console.log(req.body);
 
         if(!product) {
             res.status(404).json({

@@ -4,6 +4,8 @@ import { getProducts, updateAvailability } from "../services/ProductServices"
 import { Product } from "../types"
 import ProductDetails from "../components/ProductDetails"
 import { useMemo } from "react"
+import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
 
 export async function loaders() {
   const products = await getProducts()
@@ -19,6 +21,12 @@ export async function action({request} : ActionFunctionArgs) {
 
 export default function Products() {
 
+  const showToast = (message : string) => {
+    console.log('alerta adentro');
+    
+    toast.success(message);
+  };
+
   const products = useLoaderData() as Product[]
 
   const isEmpty = useMemo(() => products.length > 0, [products])
@@ -31,13 +39,15 @@ export default function Products() {
             <Link
                 to={"productos/nuevo"}
                 className="flex items-center"
-            > 
+                > 
                 <div className=" bg-slate-500 text-white flex justify-center items-center gap-1 px-2 py-1 rounded-xl transition-all hover:bg-slate-400">
                   <p>Agregar</p>
                   <PlusCircleIcon className="h-7"/>
                 </div>
             </Link>
         </div>
+
+        <ToastContainer/>
 
         <div className="pt-2">
           <table className="w-full mt-5 table-auto shadow-md rounded-xl bg-white">
@@ -55,6 +65,7 @@ export default function Products() {
                 <ProductDetails
                   key={product.id}
                   product={product}
+                  showToast={showToast}
                 />
               ))}
             </tbody>

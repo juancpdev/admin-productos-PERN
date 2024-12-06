@@ -5,42 +5,42 @@ import { Form, Link, useFetcher } from "react-router-dom";
 import Swal from "sweetalert2";
 import Toggle from 'react-toggle';
 import { useState } from "react";
+  import 'react-toastify/dist/ReactToastify.css';
 
 type ProductDetailsProp = {
-    product: Product
+    product: Product,
+    showToast: (message: string) => void
 };
 
-export default function ProductDetails({ product }: ProductDetailsProp) {
+export default function ProductDetails({ product, showToast }: ProductDetailsProp ) {
     const fetcher = useFetcher();
-    const [isEditing, setIsEditing] = useState(false); // Estado para activar modo edición
-    const [price, setPrice] = useState(product.price); // Estado para almacenar el precio actualizado
+    const [isEditing, setIsEditing] = useState(false);
+    const [price, setPrice] = useState(product.price);
+    const [originalPrice] = useState(product.price); 
 
-    const handleDoubleClick = () => {
-        setIsEditing(true);
-    };
+    const editPrice = () => {
+        setIsEditing(true)
+    }
 
-    const handleBlur = () => {
-        setIsEditing(false);
-
-        // Enviar el precio actualizado al backend si cambió
-        if (price !== product.price) {
-            fetcher.submit(
-                { id: product.id.toString(), price: price.toString() },
-                { method: "POST", action: `/productos/actualizar-precio/${product.id}` }
-            );
+    const validatePrice = (e: React.ChangeEvent<HTMLInputElement>) => {
+        
+        if (+e.target.value > 0) {
+            setPrice(+e.target.value)
         }
-    };
+    }
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter") {
-            handleBlur();
-        } else if (event.key === "Escape") {
-            setPrice(product.price); // Restaurar el precio original si se presiona Escape
-            setIsEditing(false);
+    const updatePrice = (e : React.FocusEvent<HTMLInputElement>) => {
+        setIsEditing(false)
+        
+        if (price !== originalPrice) {
+            showToast('Precio Actualizado');
+            e.currentTarget.form?.requestSubmit();
         }
-    };
+    }
 
     return (
+
+        
         <tr className="border-t text-center">
             <td className="p-3 text-lg text-gray-800">
                 {product.id}
@@ -49,24 +49,30 @@ export default function ProductDetails({ product }: ProductDetailsProp) {
                 {product.name}
             </td>
             <td className="p-3 text-lg text-gray-800">
-                {isEditing ? (
-                    <input
-                        type="number"
-                        value={price}
-                        onChange={(e) => setPrice(+e.target.value)}
-                        onBlur={handleBlur}
-                        onKeyDown={handleKeyDown}
-                        autoFocus
-                        className="border rounded px-2 py-1 text-center w-full"
-                    />
-                ) : (
-                    <span onDoubleClick={handleDoubleClick} className="cursor-pointer">
-                        {formatCurrency(price)}
+                {isEditing ?
+                    <fetcher.Form method="POST" className="flex justify-center" action="/update-price">
+                        <input 
+                            type="number"
+                            value={price}
+                            onChange={validatePrice}
+                            onBlur={updatePrice} // es lo mismo que onBlur={(e) => updatePrice(e)}
+                            autoFocus
+                            className="border rounded text-center"
+                        />
+                        <input type="hidden" name="price" value={price} />
+                        <input type="hidden" name="id" value={product.id} />
+                    </fetcher.Form>
+                    : 
+                    <span
+                        onDoubleClick={editPrice}
+                        className="cursor-pointer p-2 rounded-xl hover:bg-red-100 transition"
+                    >
+                        {formatCurrency(product.price)}
                     </span>
-                )}
+                }
             </td>
             <td className="p-3 text-lg text-gray-800 ">
-                <fetcher.Form method="POST" className="flex justify-center" action="/toggle-availability">
+                <fetcher.Form method="POST" className="flex justify-center" action="toggle-availability">
                     <Toggle
                         defaultChecked={product.availability}
                         onChange={(e) => {

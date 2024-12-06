@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Products, { loaders as productsLoader, action as productsAction } from "./views/Products";
 import NewProduct from "./views/NewProduct";
-import { deleteProductAction, toggleAvailabilityAction } from "./services/ProductActions";
+import { deleteProductAction, toggleAvailabilityAction, updatePriceAction } from "./services/ProductActions";
 
 export const router = createBrowserRouter([
     {
@@ -13,11 +13,16 @@ export const router = createBrowserRouter([
                 index: true,
                 element: <Products />,
                 loader: productsLoader,
-                action: productsAction
+                action: productsAction,
+                hydrateFallbackElement: <p>Cargando...</p>
             },
             {
-                path: "/toggle-availability",
+                path: "toggle-availability",
                 action: toggleAvailabilityAction,
+            },
+            {
+                path: "update-price",
+                action: updatePriceAction,
             },
             {
                 path: "productos/nuevo",
