@@ -1,7 +1,7 @@
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { TrashIcon } from "@heroicons/react/24/solid";
 import { Product } from "../types";
 import { formatCurrency } from "../utils";
-import { Form, Link, useFetcher } from "react-router-dom";
+import { Form, useFetcher } from "react-router-dom";
 import Swal from "sweetalert2";
 import Toggle from 'react-toggle';
 import { useState } from "react";
