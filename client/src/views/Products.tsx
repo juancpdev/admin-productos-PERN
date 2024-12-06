@@ -18,15 +18,14 @@ export async function action({request} : ActionFunctionArgs) {
   await updateAvailability(+data.id)
   return {}
 }
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export default function Products() {
 
-  const showToast = (message : string) => {
-    console.log('alerta adentro');
-    
-    toast.success(message);
-  };
 
+  const showToast = (message: string, type: ToastType) => {
+      toast[type](message);
+  };
   const products = useLoaderData() as Product[]
 
   const isEmpty = useMemo(() => products.length > 0, [products])

@@ -6,35 +6,50 @@ import Swal from "sweetalert2";
 import Toggle from 'react-toggle';
 import { useState } from "react";
   import 'react-toastify/dist/ReactToastify.css';
+import { ToastType } from "../views/Products";
 
 type ProductDetailsProp = {
     product: Product,
-    showToast: (message: string) => void
+    showToast: (message: string, type: ToastType) => void,
 };
 
 export default function ProductDetails({ product, showToast }: ProductDetailsProp ) {
     const fetcher = useFetcher();
     const [isEditing, setIsEditing] = useState(false);
-    const [price, setPrice] = useState(product.price);
-    const [originalPrice] = useState(product.price); 
+    const [price, setPrice] = useState<string | number>(product.price);
 
-    const editPrice = () => {
+    const MAX_PRICE = 9999999;
+
+    const editingPrice = () => {
         setIsEditing(true)
     }
 
-    const validatePrice = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        setPrice(value)
+    }
+
+    const handleBlur = (e : React.FocusEvent<HTMLInputElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        setIsEditing(false)
         
-        if (+e.target.value > 0) {
-            setPrice(+e.target.value)
+        if (+price > 0 && +price !== product.price &&+price <= MAX_PRICE) {
+            showToast('Precio Actualizado', 'success')
+            e.currentTarget.form?.requestSubmit()
+        } else if(+price > MAX_PRICE) {
+            showToast('El valor es muy grande', 'error')
+            setPrice(product.price)
+        } else {
+            setPrice(product.price)
         }
     }
 
-    const updatePrice = (e : React.FocusEvent<HTMLInputElement>) => {
-        setIsEditing(false)
-        
-        if (price !== originalPrice) {
-            showToast('Precio Actualizado');
-            e.currentTarget.form?.requestSubmit();
+    const handleKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            setIsEditing(false)
+            handleBlur(e)
+            
+        } else if (e.key === 'Escape') {
+            setIsEditing(false)
         }
     }
 
@@ -54,8 +69,9 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
                         <input 
                             type="number"
                             value={price}
-                            onChange={validatePrice}
-                            onBlur={updatePrice} // es lo mismo que onBlur={(e) => updatePrice(e)}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur} // es lo mismo que onBlur={(e) => updatePrice(e)}
+                            onKeyDown={handleKeys}
                             autoFocus
                             className="border rounded text-center"
                         />
@@ -64,7 +80,7 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
                     </fetcher.Form>
                     : 
                     <span
-                        onDoubleClick={editPrice}
+                        onDoubleClick={editingPrice}
                         className="cursor-pointer p-2 rounded-xl hover:bg-red-100 transition"
                     >
                         {formatCurrency(product.price)}
