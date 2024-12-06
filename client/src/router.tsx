@@ -1,8 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "./layouts/Layout";
-import Products, { loaders as productsLoader, action as productsAction } from "./views/Products";
+import Products from "./views/Products";
 import NewProduct from "./views/NewProduct";
-import { deleteProductAction, toggleAvailabilityAction, updatePriceAction } from "./services/ProductActions";
+import { deleteProductAction, toggleAvailabilityAction, updateNameAction, updatePriceAction } from "./services/ProductActions";
+import { productsLoaders } from "./services/ProductLoaders";
+import { PulseLoader } from "react-spinners";
 
 export const router = createBrowserRouter([
     {
@@ -12,9 +14,12 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <Products />,
-                loader: productsLoader,
-                action: productsAction,
-                hydrateFallbackElement: <p>Cargando...</p>
+                loader: productsLoaders,
+                action: toggleAvailabilityAction,
+                hydrateFallbackElement: 
+                <div className="flex justify-center">
+                    <PulseLoader color="#1E293B" />
+                </div>
             },
             {
                 path: "toggle-availability",
@@ -23,6 +28,10 @@ export const router = createBrowserRouter([
             {
                 path: "update-price",
                 action: updatePriceAction,
+            },
+            {
+                path: "update-name",
+                action: updateNameAction,
             },
             {
                 path: "productos/nuevo",

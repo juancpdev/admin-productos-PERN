@@ -105,6 +105,15 @@ export async function updatePrice(id: Product['id'], newPrice: number) {
     }
 }
 
+export async function updateName(id: Product['id'], newName: string) {
+    try {
+        const url = `${import.meta.env.VITE_API_URL}/api/products/name/${id}`;
+        await axios.patch(url, { name: newName });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export async function deleteProduct(id : Product['id']) {
 
     try {

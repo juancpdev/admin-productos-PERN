@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updatePrice, updateProduct } from "./handlers/products";
+import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updateName, updatePrice } from "./handlers/products";
 import { body, param } from "express-validator";
 import { handleInputErrors } from "./middleware";
 
@@ -129,63 +129,6 @@ router.post('/',
 
 /**
  * @swagger
- * /api/products/{id}:
- *      put:
- *          summary: Update a product with user input
- *          tags:
- *              - Products
- *          description: Return the updated product
- *          parameters:
- *            - in: path
- *              name: id
- *              description: The ID of the product to retrieve
- *              required: true
- *              schema:
- *                  type: integer
- *          requestBody:
- *              required: true
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties: 
- *                              name:
- *                                  type: string
- *                                  example: "Uptempo Black and Withe"
- *                              price:
- *                                  type: number
- *                                  example: 350
- *                              availability:
- *                                  type: boolean
- *                                  example: true
- *          responses:
- *              200:
- *                  description: Product updated successfully
- *                  content:
- *                      application/json:
- *                          schema:
- *                              $ref: '#/components/schemas/Product'
- *              400:
- *                  description: Bad Request - invalid input data
- *              404:
- *                  description: Not found
- */
-router.put('/:id', 
-    param('id').isInt().withMessage('ID no válido'),
-    body('name')
-        .notEmpty().withMessage('El nombre del producto no puede ir vacio'),
-    body('price')
-        .isNumeric().withMessage('Valor no valido')
-        .notEmpty().withMessage('El precio del producto no puede ir vacio')
-        .custom(price  => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
-    body('availability')
-        .isBoolean().withMessage('Valor para disponibilidad no válido'),
-    handleInputErrors,
-    updateProduct
-)
-
-/**
- * @swagger
  * /api/products/availability/{id}:
  *      patch:
  *          summary: Update Product availability
@@ -232,6 +175,16 @@ router.patch('/availability/:id',
  *              required: true
  *              schema:
  *                  type: integer
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties: 
+ *                              price:
+ *                                  type: number
+ *                                  example: 350
  *          responses:
  *              200:
  *                  description: Product price successfully
@@ -244,10 +197,59 @@ router.patch('/availability/:id',
  *              404:
  *                  description: Not found
  */
-router.patch('/price/:id', 
+router.patch('/price/:id',
+    body('price')
+        .isNumeric().withMessage('Valor no valido')
+        .notEmpty().withMessage('El precio del producto no puede ir vacio')
+        .custom(price  => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
     param('id').isInt().withMessage('ID no válido'),
     handleInputErrors,
     updatePrice
+)
+
+/**
+ * @swagger
+ * /api/products/name/{id}:
+ *      patch:
+ *          summary: Update Product name
+ *          tags:
+ *              - Products
+ *          description: Return the updated name
+ *          parameters:
+ *            - in: path
+ *              name: id
+ *              description: The ID of the product to retrieve
+ *              required: true
+ *              schema:
+ *                  type: integer
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties: 
+ *                              name:
+ *                                  type: string
+ *                                  example: Uptempo black
+ *          responses:
+ *              200:
+ *                  description: Product name successfully
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Product'
+ *              400:
+ *                  description: Bad Request - invalid input data
+ *              404:
+ *                  description: Not found
+ */
+router.patch('/name/:id', 
+    param('id').isInt().withMessage('ID no válido'),
+    body('name')
+        .notEmpty().withMessage('El nombre del producto no puede ir vacio'),
+    handleInputErrors,
+    updateName
 )
 
 /**

@@ -1,23 +1,11 @@
-import {ActionFunctionArgs, Link, useLoaderData} from "react-router-dom"
+import { Link, useLoaderData} from "react-router-dom"
 import { PlusCircleIcon } from "@heroicons/react/24/solid"
-import { getProducts, updateAvailability } from "../services/ProductServices"
 import { Product } from "../types"
 import ProductDetails from "../components/ProductDetails"
 import { useMemo } from "react"
 import { ToastContainer, toast } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 
-export async function loaders() {
-  const products = await getProducts()
-  return products
-}
-
-export async function action({request} : ActionFunctionArgs) {
-  const formData = await request.formData()
-  const data = Object.fromEntries(formData)
-  await updateAvailability(+data.id)
-  return {}
-}
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export default function Products() {
@@ -53,10 +41,11 @@ export default function Products() {
             <thead className="bg-slate-800 text-white">
                 <tr>
                     <th className="p-2">ID</th>
+                    <th className="p-2">Imagen</th>
                     <th className="p-2">Producto</th>
                     <th className="p-2">Precio</th>
                     <th className="p-2">Disponibilidad</th>
-                    <th className="p-2">Acciones</th>
+                    <th className="p-2">Borrar</th>
                 </tr>
             </thead>
             <tbody>

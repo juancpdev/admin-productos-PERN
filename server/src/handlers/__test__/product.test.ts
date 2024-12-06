@@ -2,7 +2,7 @@ import request from 'supertest'
 import server from '../../server'
 
 // Testing in POST and PUT
-const testPriceValidation = (method : 'post' | 'put', url : string) => {
+const testPriceValidation = (method : 'post', url : string) => {
     it('should validate that the price is grater than 0', async () => {
         const response = await request(server)
             [method](url)
@@ -23,7 +23,7 @@ const testPriceValidation = (method : 'post' | 'put', url : string) => {
 }
 
 // Testing in GET, PUT and DELETE
-const idNotValidate = (method : 'get' | 'put' | 'delete', send?: object ) => {
+const idNotValidate = (method : 'get' | 'delete', send?: object ) => {
     it('should check a valid ID in the URL', async () => {
         const response = await request(server)[method]('/api/products/not-valid-url').send(send)
 
@@ -35,7 +35,7 @@ const idNotValidate = (method : 'get' | 'put' | 'delete', send?: object ) => {
 }
 
 // Testing in GET, PUT and DELETE
-const productNonExist = (method : 'get' | 'put' | 'delete', send?: object ) => {
+const productNonExist = (method : 'get' | 'delete', send?: object ) => {
     it('should return 404 response for a non-exist product', async () => {
         const productId = 2000
         const response = await request(server)[method](`/api/products/${productId}`).send(send)
@@ -99,48 +99,6 @@ describe('GET /api/products/:id', () => {
     })
 })
 
-describe('PUT /api/products/:id', () => {
-    idNotValidate('put', { 
-        name: 'new name',
-        availability: true,
-        price: 1000
-    })
-
-    it('should display validation error messages when updating a product', async () => {
-        const response = await request(server)
-            .put('/api/products/1')
-            .send({})
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toBeTruthy()
-        expect(response.body.errors).toHaveLength(5)
-
-        expect(response.status).not.toBe(200)
-        expect(response.body).not.toHaveProperty('data')
-    })
-
-    productNonExist('put', { 
-        name: 'new name',
-        availability: true,
-        price: 300
-    })
-
-    it('should update an existing product with valid data', async () => {
-        const response = await request(server)
-            .put(`/api/products/1`)
-            .send({ 
-                name: 'new name',
-                availability: true,
-                price: 300
-            })
-        expect(response.status).toBe(200)
-        expect(response.body).toHaveProperty('data')
-
-        expect(response.status).not.toBe(400)
-        expect(response.body).not.toHaveProperty('errors')
-    })
-})
-
 describe('PATCH /api/products/availability/:id', () => { 
     // Si hay errores a futuro borrar idNotValidate de PATCH (lo agregue ya haciendo la doc porq pense q me faltaba)
     it('should check a valid ID in the URL', async () => {
@@ -181,7 +139,7 @@ describe('PATCH /api/products/availability/:id', () => {
 
 describe('PATCH /api/products/price/:id', () => {
     it('should check a valid ID in the URL', async () => {
-        const response = await request(server).patch('/api/products/price/not-valid-url/').send({availability : true})
+        const response = await request(server).patch('/api/products/price/not-valid-url/').send({price : 500})
 
         expect(response.status).toBe(400)
         expect(response.body).toHaveProperty('errors')
@@ -204,15 +162,51 @@ describe('PATCH /api/products/price/:id', () => {
         expect(response.body).not.toHaveProperty('data')
     })
 
-    it('should update the product availability', async () => {
-        const response = await request(server).patch('/api/products/price/1')
-        expect(response.status).toBe(200)
-        expect(response.body).toHaveProperty('data')
-        expect(response.body.data.availability).toBe(false)
+    it('should display validation errors', async () => {
+        const response = await request(server).patch('/api/products/price/1').send({})
 
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(3)
+        
         expect(response.status).not.toBe(404)
-        expect(response.status).not.toBe(400)
-        expect(response.body).not.toHaveProperty('error')
+    })
+
+})
+
+describe('PATCH /api/products/name/:id', () => {
+    it('should check a valid ID in the URL', async () => {
+        const response = await request(server).patch('/api/products/name/not-valid-url/').send({name : "Uptempo"})
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.errors[0].msg).toBe("ID no válido")
+    })
+
+    it('should return 404 response for a non-exist product', async () => {
+        const productId = 2000
+        const response = await request(server).patch(`/api/products/name/${productId}`).send({ 
+            name: 'new name',
+            availability: true,
+            price: 300
+        })
+
+        expect(response.status).toBe(404)
+        expect(response.body.error).toBe("Producto no encontrado")
+
+        expect(response.status).not.toBe(200)
+        expect(response.body).not.toHaveProperty('data')
+    })
+
+    it('should display validation errors', async () => {
+        const response = await request(server).patch('/api/products/name/1').send({})
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        
+        expect(response.status).not.toBe(404)
     })
 })
 
