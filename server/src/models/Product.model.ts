@@ -11,6 +11,11 @@ class Product extends Model {
     declare name: string
 
     @Column({
+        type: DataType.STRING(100)
+    })
+    declare image: string
+
+    @Column({
         type: DataType.FLOAT
     })
     declare price: number

@@ -95,7 +95,7 @@ router.get('/:id',
  *          requestBody:
  *              required: true
  *              content:
- *                  application/json:
+ *                  multipart/form-data:
  *                      schema:
  *                          type: object
  *                          properties: 
@@ -105,6 +105,10 @@ router.get('/:id',
  *                              price:
  *                                  type: number
  *                                  example: 350
+ *                              image:
+ *                                  type: string
+ *                                  format: binary
+ *                                  description: "Image of the product to be uploaded"
  *          responses:
  *              201:
  *                  description: Product created successfully
@@ -123,6 +127,8 @@ router.post('/',
         .isNumeric().withMessage('Valor no valido')
         .notEmpty().withMessage('El precio del producto no puede ir vacio')
         .custom(price  => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
+    body('image') 
+        .notEmpty().withMessage('La imagen es obligatoria'),
     handleInputErrors,
     createProduct
 )

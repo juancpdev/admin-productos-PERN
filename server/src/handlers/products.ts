@@ -19,7 +19,7 @@ export const getProductById = async (req: Request, res: Response) => {
         return 
     }
     res.json({ data: product });
-};
+}
 
 export const createProduct = async (req : Request, res : Response) => {
     const product = await Product.create(req.body)
@@ -44,7 +44,7 @@ export const updateAvailability = async (req: Request, res: Response) => {
         console.log(error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
-};
+}
 
 export const updatePrice = async (req: Request, res: Response) => {
     try {
@@ -66,7 +66,7 @@ export const updatePrice = async (req: Request, res: Response) => {
         console.log(error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
-};
+}
 
 export const updateName = async (req: Request, res: Response) => {
     try {
@@ -88,7 +88,7 @@ export const updateName = async (req: Request, res: Response) => {
         console.log(error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
-};
+}
 
 export const deleteProduct = async (req : Request, res : Response)  => {
     try {

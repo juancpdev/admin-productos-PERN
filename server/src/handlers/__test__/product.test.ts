@@ -8,8 +8,9 @@ const testPriceValidation = (method : 'post', url : string) => {
             [method](url)
             .send({ 
                 name: 'new name',
-                availability: true,
-                price: 0
+                image: 'url-img',
+                price: 0,
+                availability: true
             })
         expect(response.status).toBe(400)
         expect(response.body).toHaveProperty('errors')
@@ -54,7 +55,7 @@ describe('POST /api/products', () => {
 
         expect(response.status).toBe(400)
         expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(4)
+        expect(response.body.errors).toHaveLength(5)
         
         expect(response.status).not.toBe(404)
     })
@@ -64,6 +65,7 @@ describe('POST /api/products', () => {
     it('should create a new product', async () => {
         const response = await request(server).post('/api/products').send({
             name: 'Zapas - Testing',
+            image: 'url-img',
             price: 30
         })
         expect(response.status).toBe(201)

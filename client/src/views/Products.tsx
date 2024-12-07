@@ -10,7 +10,6 @@ export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export default function Products() {
 
-
   const showToast = (message: string, type: ToastType) => {
       toast[type](message);
   };
