@@ -22,7 +22,14 @@ export const getProductById = async (req: Request, res: Response) => {
 }
 
 export const createProduct = async (req : Request, res : Response) => {
-    const product = await Product.create(req.body)
+    const { name, price} = req.body
+    const image = req.file?.path
+
+    const product = await Product.create({
+        name,
+        image,
+        price
+    })
     res.status(201).json({data: product})
 }
 

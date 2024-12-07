@@ -1,5 +1,7 @@
 import {Request, Response, NextFunction} from "express"
 import { validationResult } from "express-validator"
+import multer from 'multer'
+import path from 'path';
 
 export const handleInputErrors = (req : Request, res : Response, next : NextFunction) => {
     
@@ -10,3 +12,21 @@ export const handleInputErrors = (req : Request, res : Response, next : NextFunc
     }
     next()
 }
+
+// Configuración de multer para la carga de archivos
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');  // Aquí defines el directorio donde se guardarán las imágenes
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);  // Extensión del archivo (por ejemplo, .jpg, .png)
+        const filename = Date.now() + ext;  // Nombre único para el archivo
+        cb(null, filename);
+    }
+});
+
+// Configuración de multer
+const upload = multer({ storage });
+
+// Exportar el middleware upload
+export { upload };

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updateName, updatePrice } from "./handlers/products";
 import { body, param } from "express-validator";
-import { handleInputErrors } from "./middleware";
+import { handleInputErrors, upload } from "./middleware";
 
 
 const router =  Router();
@@ -129,6 +129,7 @@ router.post('/',
         .custom(price  => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
     body('image') 
         .notEmpty().withMessage('La imagen es obligatoria'),
+    upload.single("image"),
     handleInputErrors,
     createProduct
 )
