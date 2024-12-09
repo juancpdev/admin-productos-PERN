@@ -1,31 +1,30 @@
-import { safeParse, pipe, number, parse, string, transform } from 'valibot'
-import { DraftProductSchema, Product, ProductSchema, ProductsSchema } from '../types/index'
+import { safeParse } from 'valibot'
+import { Product, ProductSchema, ProductsSchema } from '../types/index'
 import axios from 'axios'
-import { toBoolean } from '../utils'
 
 export type ProductData = {
-    [k: string] : FormDataEntryValue
-}
+    name: FormDataEntryValue;
+    price: FormDataEntryValue;
+    image: File[];
+};
 
-export async function addProduct(data : ProductData) {
+export async function addProduct(data: ProductData) {
     try {
-        const result = safeParse(DraftProductSchema, {
-            name: data.name,
-            price: +data.price
-        })
-        
-        if(result.success) {
-            const url = `${import.meta.env.VITE_API_URL}/api/products`
-            await axios.post(url, {
-                name: result.output.name,
-                price: result.output.price
-            })
-        } else {
-            throw new Error('Datos no validos')
-        }
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('price', data.price.toString());
+        formData.append('image', data.image[0]);
+
+        const url = `${import.meta.env.VITE_API_URL}/api/products`;
+        await axios.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         
     } catch (error) {
         console.log(error);
+        throw error; // Re-lanzamos el error para manejarlo en el componente
     }
 }
 
@@ -56,29 +55,6 @@ export async function getProductsById(id : number) {
             return result.output
         } else {
             throw new Error("Hubo un error");
-        }
-        
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-export async function editProduct(data : ProductData, id : Product['id']) {
-
-    try {
-        const NumberSchema = pipe(string(), transform(Number), number())
-        const result = safeParse(ProductSchema, {
-            id,
-            name: data.name,
-            price: parse(NumberSchema, data.price),
-            availability: toBoolean(data.availability.toString())
-        })
-        
-        if(result.success) {
-            const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`
-            await axios.put(url, result.output)
-        } else {
-            throw new Error('Datos no validos')
         }
         
     } catch (error) {

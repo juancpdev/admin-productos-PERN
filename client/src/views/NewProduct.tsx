@@ -8,14 +8,18 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function NewProduct() {
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<ProductData>();
     
-    const onSubmit = (data : ProductData) => {
-        // Manejar envío del formulario
-        addProduct(data)
-        toast.success('Producto agregado')
-        reset()
-      };
+    const onSubmit = async (data: ProductData) => {
+        try {
+            await addProduct(data);
+            toast.success('Producto agregado');
+            reset();
+        } catch (error) {
+            toast.error('Error al agregar el producto');
+            console.error(error);
+        }
+    };
 
     return (
         <>
@@ -68,6 +72,21 @@ export default function NewProduct() {
                             {...register('price', {required: 'El precio es obligatorio'})}
                         />
                         {errors.price && <Errors>{errors.price.message?.toString()}</Errors>}
+                    </div>
+                    <div className="mb-4">
+                        <label
+                            className="text-gray-800"
+                            htmlFor="image"
+                        >Imagen:</label>
+                        <input 
+                            id="image"
+                            type="file"
+                            accept="image/*"
+                            className="mt-2 block w-full p-3 bg-gray-100"
+                            placeholder="Precio Producto. ej. 200, 300"
+                            {...register('image', {required: 'La imagen es obligatoria'})}
+                        />
+                        {errors.image && <Errors>{errors.image.message?.toString()}</Errors>}
                     </div>
                     <input
                     type="submit"

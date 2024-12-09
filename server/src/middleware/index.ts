@@ -2,6 +2,13 @@ import {Request, Response, NextFunction} from "express"
 import { validationResult } from "express-validator"
 import multer from 'multer'
 import path from 'path';
+import fs from 'fs';
+
+// Crear el directorio uploads si no existe
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
 
 export const handleInputErrors = (req : Request, res : Response, next : NextFunction) => {
     

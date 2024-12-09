@@ -12,7 +12,6 @@ export async function toggleAvailabilityAction({request} : ActionFunctionArgs) {
 export async function updatePriceAction({request} : ActionFunctionArgs) {
     const formData = await request.formData()
     const data = Object.fromEntries(formData)
-    console.log(data);
     
     await updatePrice(+data.id, +data.price)
     return {}
@@ -21,7 +20,6 @@ export async function updatePriceAction({request} : ActionFunctionArgs) {
 export async function updateNameAction({request} : ActionFunctionArgs) {
     const formData = await request.formData()
     const data = Object.fromEntries(formData)
-    console.log(data);
     
     await updateName(+data.id, data.name.toString())
     return {}

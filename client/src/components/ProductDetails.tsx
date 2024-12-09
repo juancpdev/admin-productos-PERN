@@ -102,7 +102,9 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
             </td>
 
             <td className="p-3 text-lg text-gray-800">
-                Proximamente...
+                <div className="flex justify-center">
+                    <img className=" w-24" src={`http://localhost:4000/uploads/${product.image}`} alt="Imagen producto" />
+                </div>
             </td>
 
             <td className="p-3 text-lg text-gray-800">
@@ -164,6 +166,7 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
 
                             if (result.isConfirmed) {
                                 fetcher.submit(e.target as HTMLFormElement);
+                                showToast('Producto eliminado', 'success')
                             }
                         }}
                     >

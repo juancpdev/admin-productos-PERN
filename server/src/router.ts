@@ -119,20 +119,17 @@ router.get('/:id',
  *              400:
  *                  description: Bad Request - invalid input data
  */
-router.post('/', 
-    // Validacion
-    body('name') 
-        .notEmpty().withMessage('El nombre del producto no puede ir vacio'),
+router.post('/',
+    upload.single('image'), // Primero procesamos el archivo
+    body('name')
+        .notEmpty().withMessage('El nombre del producto no puede ir vacío'),
     body('price')
-        .isNumeric().withMessage('Valor no valido')
-        .notEmpty().withMessage('El precio del producto no puede ir vacio')
-        .custom(price  => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
-    body('image') 
-        .notEmpty().withMessage('La imagen es obligatoria'),
-    upload.single("image"),
-    handleInputErrors,
+        .isNumeric().withMessage('Valor no válido')
+        .notEmpty().withMessage('El precio del producto no puede ir vacío')
+        .custom(price => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
+    handleInputErrors, // Luego validamos los campos
     createProduct
-)
+);
 
 /**
  * @swagger

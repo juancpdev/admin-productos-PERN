@@ -21,17 +21,24 @@ export const getProductById = async (req: Request, res: Response) => {
     res.json({ data: product });
 }
 
-export const createProduct = async (req : Request, res : Response) => {
-    const { name, price} = req.body
-    const image = req.file?.path
+export const createProduct = async (req: Request, res: Response) => {
 
-    const product = await Product.create({
-        name,
-        image,
-        price
-    })
-    res.status(201).json({data: product})
-}
+    const { name, price } = req.body;
+
+    const image = req.file.filename;
+
+    try {
+        const product = await Product.create({
+            name,
+            image,
+            price,
+        });
+        res.status(201).json({ data: product });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear el producto' });
+    }
+};
+
 
 export const updateAvailability = async (req: Request, res: Response) => {
     try {

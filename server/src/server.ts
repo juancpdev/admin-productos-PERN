@@ -46,6 +46,8 @@ server.use(cors(CorsOptions))
 // Leer datos de formularios
 server.use(express.json())
 
+server.use('/uploads', express.static('uploads'));
+
 server.use(morgan('dev'))
 server.use('/api/products', router)
 
