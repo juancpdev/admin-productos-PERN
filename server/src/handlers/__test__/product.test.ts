@@ -1,17 +1,53 @@
 import request from 'supertest'
 import server from '../../server'
+import fs from 'fs';
+import path from 'path';
+
+const deleteFilesInDirectory = (directory: string) => {
+    if (fs.existsSync(directory)) {
+        const files = fs.readdirSync(directory);
+        files.forEach(file => {
+            const filePath = path.join(directory, file);
+            if (fs.lstatSync(filePath).isDirectory()) {
+                deleteFilesInDirectory(filePath);  // Recursión
+            } else {
+                fs.unlinkSync(filePath);  // Elimina el archivo
+            }
+        });
+    } else {
+        console.log(`La carpeta ${directory} no existe.`);
+    }
+};
 
 // Testing in POST and PUT
 const testPriceValidation = (method : 'post', url : string) => {
+
+    afterAll(async () => {
+        // Limpiar después de todos los tests
+        const uploadDir = path.join(__dirname, '..', '..', '..', 'uploads');
+        console.log("Limpieza de archivos en: " + uploadDir);
+        deleteFilesInDirectory(uploadDir);  // Llama a la función de limpieza
+        console.log('Archivos eliminados correctamente');
+    });
+
     it('should validate that the price is grater than 0', async () => {
+        // Crea un archivo temporal para simular la carga de la imagen
+        const imagePath = path.join(__dirname, 'test-image.webp');
+
+        // Asegúrate de tener una imagen simulada, puedes crear un archivo vacío para esto
+        if (!fs.existsSync(imagePath)) {
+            fs.writeFileSync(imagePath, 'simulated image content');
+        }
+
+        // Realiza la solicitud POST simulando la subida de archivo
         const response = await request(server)
             [method](url)
-            .send({ 
-                name: 'new name',
-                image: 'url-img',
-                price: 0,
-                availability: true
-            })
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', 'new name')
+            .field('price', 0)
+            .field('availability', true)
+            .attach('image', imagePath);
+
         expect(response.status).toBe(400)
         expect(response.body).toHaveProperty('errors')
         expect(response.body.errors).toBeTruthy()
@@ -20,6 +56,9 @@ const testPriceValidation = (method : 'post', url : string) => {
 
         expect(response.status).not.toBe(200)
         expect(response.body).not.toHaveProperty('data')
+
+        // Limpia el archivo simulado después de los tests
+        fs.unlinkSync(imagePath);
     })
 }
 
@@ -63,12 +102,25 @@ describe('POST /api/products', () => {
     testPriceValidation('post', "/api/products")
 
     it('should create a new product', async () => {
-        const response = await request(server).post('/api/products').send({
-            name: 'Zapas - Testing',
-            image: 'url-img',
-            price: 30
-        })
+
+        // Crea un archivo temporal para simular la carga de la imagen
+        const imagePath = path.join(__dirname, 'test-image.webp');
+        
+        // Asegúrate de tener una imagen simulada
+        if (!fs.existsSync(imagePath)) {
+            fs.writeFileSync(imagePath, 'simulated image content');
+        }
+            
+        const response = await request(server)
+            .post('/api/products')
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', 'Zapas - Testing')
+            .field('price', 30)
+            .attach('image', imagePath); // Adjunta el archivo simulado
+            
         expect(response.status).toBe(201)
+
+        fs.unlinkSync(imagePath);
     })
 })
 

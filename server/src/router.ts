@@ -127,6 +127,12 @@ router.post('/',
         .isNumeric().withMessage('Valor no válido')
         .notEmpty().withMessage('El precio del producto no puede ir vacío')
         .custom(price => price > 0).withMessage('El precio del producto debe ser mayor a 0'),
+    body('image').custom((value, { req }) => {
+        if (!req.file) {
+            throw new Error('La imagen es obligatoria');
+        }
+        return true;
+    }),
     handleInputErrors, // Luego validamos los campos
     createProduct
 );
