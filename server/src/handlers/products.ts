@@ -132,12 +132,7 @@ export const deleteProduct = async (req : Request, res : Response)  => {
         }
 
         const imageRelativePath = product.image
-        const imageOriginalPath = path.join("uploads", path.basename(imageRelativePath, '.webp'))
         const imageWebpPath = path.join("webp", imageRelativePath)
-
-        console.log(imageRelativePath);
-        console.log(imageOriginalPath);
-        console.log(imageWebpPath);
 
         try {
             await fs.unlink(imageWebpPath).catch(() => {}); // Ignorar errores si no existe
