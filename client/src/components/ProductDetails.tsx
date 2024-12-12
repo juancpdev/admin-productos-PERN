@@ -103,7 +103,11 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
 
             <td className="p-3 text-lg text-gray-800">
                 <div className="flex justify-center">
-                    <img className=" w-24" src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={`Imagen ${product.name}`} />
+                    <img 
+                        className=" w-24" 
+                        src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`} 
+                        alt={`Imagen ${product.name}`} 
+                    />
                 </div>
             </td>
 

@@ -47,6 +47,7 @@ server.use(cors(CorsOptions))
 server.use(express.json())
 
 server.use('/uploads', express.static('uploads'));
+server.use('/webp', express.static('webp'));
 
 server.use(morgan('dev'))
 server.use('/api/products', router)

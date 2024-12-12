@@ -133,7 +133,7 @@ router.post('/',
         }
         return true;
     }),
-    handleInputErrors, // Luego validamos los campos
+    handleInputErrors,
     createProduct
 );
 

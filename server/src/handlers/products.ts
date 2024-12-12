@@ -1,5 +1,8 @@
 import { Request, Response } from "express"
 import Product from "../models/Product.model";
+import sharp from 'sharp';
+import path from 'path';
+import fs from "fs/promises";
 
 export const getProduct = async (req : Request, res : Response) => {
     const products = await Product.findAll({
@@ -22,23 +25,35 @@ export const getProductById = async (req: Request, res: Response) => {
 }
 
 export const createProduct = async (req: Request, res: Response) => {
-
     const { name, price } = req.body;
-
-    const image = req.file.filename;
+    const originalPath = req.file.path; // Ruta del archivo cargado
+    const outputPath = path.join(
+        './webp',
+        `${path.parse(originalPath).name}.webp`
+    );
 
     try {
+        // Procesar el archivo con sharp
+        await sharp(originalPath)
+        .webp({quality: 80})
+        .toFile(outputPath)
+
+        // Crear el producto en la base de datos
         const product = await Product.create({
             name,
-            image,
+            image: `${path.parse(originalPath).name}.webp`, // Guardar el nuevo nombre
             price,
         });
+
+        // Enviar la respuesta al cliente
         res.status(201).json({ data: product });
+
+
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear el producto' });
+        console.error('Error al crear el producto o procesar la imagen:', error);
+        res.status(500).json({ error: 'Error al crear el producto o procesar la imagen' });
     }
 };
-
 
 export const updateAvailability = async (req: Request, res: Response) => {
     try {
@@ -116,6 +131,20 @@ export const deleteProduct = async (req : Request, res : Response)  => {
             return
         }
 
+        const imageRelativePath = product.image
+        const imageOriginalPath = path.join("uploads", path.basename(imageRelativePath, '.webp'))
+        const imageWebpPath = path.join("webp", imageRelativePath)
+
+        console.log(imageRelativePath);
+        console.log(imageOriginalPath);
+        console.log(imageWebpPath);
+
+        try {
+            await fs.unlink(imageWebpPath).catch(() => {}); // Ignorar errores si no existe
+        } catch (err) {
+            console.error("Error al eliminar las imágenes:", err);
+        }
+        
         await product.destroy()
         res.json({data: 'Producto Eliminado'})
 
