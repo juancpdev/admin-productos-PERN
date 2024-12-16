@@ -1,12 +1,13 @@
-import { TrashIcon } from "@heroicons/react/24/solid";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Product } from "../types";
 import { formatCurrency } from "../utils";
 import { Form, useFetcher } from "react-router-dom";
 import Swal from "sweetalert2";
 import Toggle from 'react-toggle';
 import { useState } from "react";
-  import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { ToastType } from "../views/Products";
+import ChangeImage from "./ChangeImage";
 
 type ProductDetailsProp = {
     product: Product,
@@ -22,6 +23,8 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
     const [isEditing, setIsEditing] = useState(false);
     const [price, setPrice] = useState<string | number>(product.price);
     const [name, setName] = useState<string>(product.name);
+    const [isImageOpen, setIsImageOpen] = useState(false);
+    const [isZoomed, setIsZoomed] = useState(false); // Estado para la clase adicional
 
     const MAX_PRICE = 9999999;
     const MAX_NAME = 20;
@@ -94,7 +97,48 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
         </fetcher.Form>
     )
 
+    const openImage = () => {
+        setIsImageOpen(true)
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => {
+            setIsZoomed(true);
+        }, 0);
+    }
+
+    const closeImage = () => {
+        setIsImageOpen(false)
+        setIsZoomed(false)
+        document.body.style.overflow = 'auto';
+    }
+    
+
     return (
+        <>
+        {isImageOpen && (
+            <tr
+                className={`z-10 fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90 `}
+                onClick={closeImage} // Cierra el div al hacer clic en el fondo
+            >
+                <td>
+                    <div
+                        className={` relative scale-50 transition-all ${isZoomed ? " scale-100" : ""}`}
+                        onClick={(e) => e.stopPropagation()} // Evita cerrar al hacer clic en la imagen
+                    >
+                        <img
+                            className="max-w-2xl w-full rounded-lg"
+                            src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`}
+                            alt={`Imagen ${product.name}`}
+                        />
+                    <ChangeImage/>
+                    </div>
+                    <XMarkIcon
+                        className="absolute top-2 right-2 text-white w-10 cursor-pointer transition-all hover:text-gray-400"
+                        onClick={closeImage}
+                    />
+                </td>
+                
+            </tr>
+        )}
 
         <tr className="border-t text-center">
             <td className="p-3 text-lg text-gray-800">
@@ -104,9 +148,10 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
             <td className="p-3 text-lg text-gray-800">
                 <div className="flex justify-center">
                     <img 
-                        className=" w-24" 
+                        className=" w-24 rounded-lg cursor-pointer" 
                         src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`} 
                         alt={`Imagen ${product.name}`} 
+                        onClick={openImage}
                     />
                 </div>
             </td>
@@ -181,5 +226,6 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
                 </div>
             </td>
         </tr>
+        </>
     );
 }
