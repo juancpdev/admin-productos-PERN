@@ -1,35 +1,52 @@
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import React from "react";
+import { useFetcher } from "react-router-dom";
 
-export default function ChangeImage() {
-  // Ref para el input de archivo
+type ChangeImageProps = {
+  product: {
+    id: number;
+    image: string;
+  };
+};
+
+export default function ChangeImage({ product }: ChangeImageProps) {
+  const fetcher = useFetcher();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
-  // Función que abre el input al hacer clic en el icono
+  // Abrir el input de archivo
   const openFileInput = () => {
-    fileInputRef.current?.click();  // Esto abrirá el cuadro de selección de archivos
+    fileInputRef.current?.click();
+  };
+
+  // Manejar el cambio de archivo
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("id", product.id.toString());
+      formData.append("image", file);
+
+      fetcher.submit(formData, {
+        method: "post",
+        action: "update-image",
+        encType: "multipart/form-data",
+      });
+
+    }
   };
 
   return (
     <div className="absolute top-2 right-2">
-      {/* Icono de cierre que actúa como botón */}
       <PencilSquareIcon
         className="text-white w-8 cursor-pointer transition-all hover:text-gray-400"
-        onClick={openFileInput} // Al hacer clic, abre el selector de archivos
+        onClick={openFileInput}
       />
-
-      {/* Input de archivo oculto */}
       <input
-        ref={fileInputRef} // Usamos una referencia para acceder al input
+        ref={fileInputRef}
         type="file"
         accept="image/*"
-        className="hidden" // Lo ocultamos visualmente
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            console.log("Imagen seleccionada:", file);
-          }
-        }}
+        className="hidden"
+        onChange={handleFileChange}
       />
     </div>
   );

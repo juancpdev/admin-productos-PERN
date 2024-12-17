@@ -119,6 +119,39 @@ export const updateName = async (req: Request, res: Response) => {
     }
 }
 
+export const updateImage = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const originalPath = req.file.path; // Ruta del archivo cargado
+        const newImage = `${path.parse(originalPath).name}.webp`
+        const outputPath = path.join(
+            './webp',
+            `${path.parse(originalPath).name}.webp`
+        );
+        // Procesar el archivo con sharp
+        await sharp(originalPath)
+        .webp({quality: 80})
+        .toFile(outputPath)
+        const product = await Product.findByPk(id);
+        const oldImage = product.image
+        const imageWebpPath = path.join("webp", oldImage)
+
+        product.image = newImage;
+
+        try {
+            await fs.unlink(imageWebpPath).catch(() => {}); // Ignorar errores si no existe
+        } catch (err) {
+            console.error("Error al eliminar las imágenes:", err);
+        }
+
+        await product.save();
+        res.json({data: 'Imagen Actualizada'})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+}
+
 export const deleteProduct = async (req : Request, res : Response)  => {
     try {
         const { id } = req.params

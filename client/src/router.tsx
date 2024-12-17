@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Products from "./views/Products";
 import NewProduct from "./views/NewProduct";
-import { deleteProductAction, toggleAvailabilityAction, updateNameAction, updatePriceAction } from "./services/ProductActions";
+import { deleteProductAction, toggleAvailabilityAction, updateImageAction, updateNameAction, updatePriceAction } from "./services/ProductActions";
 import { productsLoaders } from "./services/ProductLoaders";
 import { PulseLoader } from "react-spinners";
 
@@ -32,6 +32,10 @@ export const router = createBrowserRouter([
             {
                 path: "update-name",
                 action: updateNameAction,
+            },
+            {
+                path: "update-image",
+                action: updateImageAction,
             },
             {
                 path: "productos/nuevo",

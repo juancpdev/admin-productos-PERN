@@ -90,6 +90,22 @@ export async function updateName(id: Product['id'], newName: string) {
     }
 }
 
+export async function updateImage(id: Product['id'], newImage: File) {
+    try {
+        const formData = new FormData();
+        formData.append('image', newImage);
+
+        const url = `${import.meta.env.VITE_API_URL}/api/products/image/${id}`;
+        await axios.patch(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export async function deleteProduct(id : Product['id']) {
 
     try {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updateName, updatePrice } from "./handlers/products";
+import { createProduct, deleteProduct, getProduct, getProductById, updateAvailability, updateImage, updateName, updatePrice } from "./handlers/products";
 import { body, param } from "express-validator";
 import { handleInputErrors, upload } from "./middleware";
 
@@ -29,6 +29,10 @@ const router =  Router();
  *                      type: boolean
  *                      description: The Product availability
  *                      example: true
+ *                  image:
+ *                      type: string
+ *                      description: "Image of the product to be uploaded"
+ *                      example: Uptempo image
  */
 
 /**
@@ -260,6 +264,56 @@ router.patch('/name/:id',
         .notEmpty().withMessage('El nombre del producto no puede ir vacio'),
     handleInputErrors,
     updateName
+)
+
+/**
+ * @swagger
+ * /api/products/image/{id}:
+ *      patch:
+ *          summary: Update image name
+ *          tags:
+ *              - Products
+ *          description: Return the updated image
+ *          parameters:
+ *            - in: path
+ *              name: id
+ *              description: The ID of the product to retrieve
+ *              required: true
+ *              schema:
+ *                  type: integer
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                   multipart/form-data:
+ *                      schema:
+ *                          type: object
+ *                          properties: 
+*                               image:
+ *                                  type: string
+ *                                  format: binary
+ *                                  description: "Image of the product to be uploaded"
+ *          responses:
+ *              200:
+ *                  description: Product image successfully
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/Product'
+ *              400:
+ *                  description: Bad Request - invalid input data
+ *              404:
+ *                  description: Not found
+ */
+router.patch('/image/:id', 
+    upload.single('image'),
+    body('image').custom((value, { req }) => {
+        if (!req.file) {
+            throw new Error('La imagen es obligatoria');
+        }
+        return true;
+    }),
+    handleInputErrors,
+    updateImage
 )
 
 /**

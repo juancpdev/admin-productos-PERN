@@ -121,7 +121,7 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
             >
                 <td>
                     <div
-                        className={` relative scale-50 transition-all ${isZoomed ? " scale-100" : ""}`}
+                        className={` relative scale-50 transition-all ${isZoomed ? "zoom-class" : ""}`}
                         onClick={(e) => e.stopPropagation()} // Evita cerrar al hacer clic en la imagen
                     >
                         <img
@@ -129,7 +129,9 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
                             src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`}
                             alt={`Imagen ${product.name}`}
                         />
-                    <ChangeImage/>
+                    <ChangeImage 
+                        product={product}
+                    />
                     </div>
                     <XMarkIcon
                         className="absolute top-2 right-2 text-white w-10 cursor-pointer transition-all hover:text-gray-400"
