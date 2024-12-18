@@ -306,6 +306,7 @@ router.patch('/name/:id',
  */
 router.patch('/image/:id', 
     upload.single('image'),
+    param('id').isInt().withMessage('ID no válido'),
     body('image').custom((value, { req }) => {
         if (!req.file) {
             throw new Error('La imagen es obligatoria');

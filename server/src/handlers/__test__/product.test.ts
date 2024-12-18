@@ -3,6 +3,14 @@ import server from '../../server'
 import fs from 'fs';
 import path from 'path';
 
+afterAll(async () => {
+    // Limpiar después de todos los tests
+    const uploadDir = path.join(__dirname, '..', '..', '..', 'uploads');
+    console.log("Limpieza de archivos en: " + uploadDir);
+    deleteFilesInDirectory(uploadDir);  // Llama a la función de limpieza
+    console.log('Archivos eliminados correctamente');
+});
+
 const deleteFilesInDirectory = (directory: string) => {
     if (fs.existsSync(directory)) {
         const files = fs.readdirSync(directory);
@@ -19,29 +27,52 @@ const deleteFilesInDirectory = (directory: string) => {
     }
 };
 
-// Testing in POST and PUT
-const testPriceValidation = (method : 'post', url : string) => {
+const uploadImageTest = () => {
+    const testImageSource = path.join(__dirname, 'img-test.png'); // Ruta de una imagen realZZ
+    const imagePath = path.join(__dirname, '..', '..', '..', 'uploads', 'img-test.png');
+    
+    // Asegúrate de copiar una imagen real
+    fs.copyFileSync(testImageSource, imagePath);
 
-    afterAll(async () => {
-        // Limpiar después de todos los tests
-        const uploadDir = path.join(__dirname, '..', '..', '..', 'uploads');
-        console.log("Limpieza de archivos en: " + uploadDir);
-        deleteFilesInDirectory(uploadDir);  // Llama a la función de limpieza
-        console.log('Archivos eliminados correctamente');
-    });
+    return imagePath
+}
+
+// Testing in GET and DELETE
+const idNotValidate = (method : 'get' | 'delete', send?: object ) => {
+    it('should check a valid ID in the URL', async () => {
+        const response = await request(server)[method]('/api/products/not-valid-url').send(send)
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.errors[0].msg).toBe("ID no válido")
+    })
+}
+
+// Testing in GET and DELETE
+const productNonExist = (method : 'get' | 'delete', send?: object ) => {
+    it('should return 404 response for a non-exist product', async () => {
+        const productId = 2000
+        const response = await request(server)[method](`/api/products/${productId}`).send(send)
+
+        expect(response.status).toBe(404)
+        expect(response.body.error).toBe("Producto no encontrado")
+
+        expect(response.status).not.toBe(200)
+        expect(response.body).not.toHaveProperty('data')
+    })
+}
+
+// -------------------------------------- POST ------------------------------------------
+
+describe('POST /api/products', () => {
 
     it('should validate that the price is grater than 0', async () => {
-        // Crea un archivo temporal para simular la carga de la imagen
-        const imagePath = path.join(__dirname, 'test-image.webp');
-
-        // Asegúrate de tener una imagen simulada, puedes crear un archivo vacío para esto
-        if (!fs.existsSync(imagePath)) {
-            fs.writeFileSync(imagePath, 'simulated image content');
-        }
+        const imagePath = uploadImageTest()
 
         // Realiza la solicitud POST simulando la subida de archivo
         const response = await request(server)
-            [method](url)
+            .post("/api/products")
             .set('Content-Type', 'multipart/form-data')
             .field('name', 'new name')
             .field('price', 0)
@@ -60,35 +91,7 @@ const testPriceValidation = (method : 'post', url : string) => {
         // Limpia el archivo simulado después de los tests
         fs.unlinkSync(imagePath);
     })
-}
 
-// Testing in GET, PUT and DELETE
-const idNotValidate = (method : 'get' | 'delete', send?: object ) => {
-    it('should check a valid ID in the URL', async () => {
-        const response = await request(server)[method]('/api/products/not-valid-url').send(send)
-
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(1)
-        expect(response.body.errors[0].msg).toBe("ID no válido")
-    })
-}
-
-// Testing in GET, PUT and DELETE
-const productNonExist = (method : 'get' | 'delete', send?: object ) => {
-    it('should return 404 response for a non-exist product', async () => {
-        const productId = 2000
-        const response = await request(server)[method](`/api/products/${productId}`).send(send)
-
-        expect(response.status).toBe(404)
-        expect(response.body.error).toBe("Producto no encontrado")
-
-        expect(response.status).not.toBe(200)
-        expect(response.body).not.toHaveProperty('data')
-    })
-}
-
-describe('POST /api/products', () => {
     it('should display validation errors', async () => {
         const response = await request(server).post('/api/products').send({})
 
@@ -99,17 +102,8 @@ describe('POST /api/products', () => {
         expect(response.status).not.toBe(404)
     })
 
-    testPriceValidation('post', "/api/products")
-
     it('should create a new product', async () => {
-
-        // Crea un archivo temporal para simular la carga de la imagen
-        const imagePath = path.join(__dirname, 'test-image.webp');
-        
-        // Asegúrate de tener una imagen simulada
-        if (!fs.existsSync(imagePath)) {
-            fs.writeFileSync(imagePath, 'simulated image content');
-        }
+        const imagePath = uploadImageTest()
             
         const response = await request(server)
             .post('/api/products')
@@ -123,6 +117,8 @@ describe('POST /api/products', () => {
         fs.unlinkSync(imagePath);
     })
 })
+
+// -------------------------------------- GET ------------------------------------------
 
 describe('GET /api/products', () => {
     it('should check if api/products url exist', async () => {
@@ -153,116 +149,92 @@ describe('GET /api/products/:id', () => {
     })
 })
 
-describe('PATCH /api/products/availability/:id', () => { 
-    // Si hay errores a futuro borrar idNotValidate de PATCH (lo agregue ya haciendo la doc porq pense q me faltaba)
-    it('should check a valid ID in the URL', async () => {
-        const response = await request(server).patch('/api/products/availability/not-valid-url/').send({availability : true})
+// -------------------------------------- PATCH ------------------------------------------
 
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(1)
-        expect(response.body.errors[0].msg).toBe("ID no válido")
-    })
-
-    it('should return 404 response for a non-exist product', async () => {
-        const productId = 2000
-        const response = await request(server).patch(`/api/products/availability/${productId}`).send({ 
-            name: 'new name',
-            availability: true,
-            price: 300
-        })
-
-        expect(response.status).toBe(404)
-        expect(response.body.error).toBe("Producto no encontrado")
-
-        expect(response.status).not.toBe(200)
-        expect(response.body).not.toHaveProperty('data')
-    })
-
-    it('should update the product availability', async () => {
-        const response = await request(server).patch('/api/products/availability/1')
-        expect(response.status).toBe(200)
-        expect(response.body).toHaveProperty('data')
-        expect(response.body.data.availability).toBe(false)
-
-        expect(response.status).not.toBe(404)
-        expect(response.status).not.toBe(400)
-        expect(response.body).not.toHaveProperty('error')
-    })
-})
-
-describe('PATCH /api/products/price/:id', () => {
-    it('should check a valid ID in the URL', async () => {
-        const response = await request(server).patch('/api/products/price/not-valid-url/').send({price : 500})
-
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(1)
-        expect(response.body.errors[0].msg).toBe("ID no válido")
-    })
-
-    it('should return 404 response for a non-exist product', async () => {
-        const productId = 2000
-        const response = await request(server).patch(`/api/products/price/${productId}`).send({ 
-            name: 'new name',
-            availability: true,
-            price: 300
-        })
-
-        expect(response.status).toBe(404)
-        expect(response.body.error).toBe("Producto no encontrado")
-
-        expect(response.status).not.toBe(200)
-        expect(response.body).not.toHaveProperty('data')
-    })
-
-    it('should display validation errors', async () => {
-        const response = await request(server).patch('/api/products/price/1').send({})
-
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(3)
+const patchGeneral = (type: string, data: number | string | boolean, errors? : number) => {
+    describe(`PATCH /api/products/${type}/:id`, () => {
         
-        expect(response.status).not.toBe(404)
-    })
+        it('should check a valid ID in the URL', async () => {
+            const response = await request(server).patch(`/api/products/${type}/not-valid-url/`).send({ [type]: data });
 
-})
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty('errors');
+            expect(response.body.errors).toHaveLength(1);
+            expect(response.body.errors[0].msg).toBe("ID no válido");
+        });
 
-describe('PATCH /api/products/name/:id', () => {
+        it('should return 404 response for a non-exist product', async () => {
+            const productId = 2000; // Un ID que no exista
+            const response = await request(server).patch(`/api/products/${type}/${productId}`).send({ 
+                name: 'new name',
+                availability: true,
+                price: 300
+            });
+
+            expect(response.status).toBe(404);
+            expect(response.body.error).toBe("Producto no encontrado");
+            expect(response.body).not.toHaveProperty('data');
+        });
+
+        if(type === 'availability') {
+            it('should update the product availability', async () => {
+                const response = await request(server).patch('/api/products/availability/1')
+                expect(response.status).toBe(200)
+                expect(response.body).toHaveProperty('data')
+                expect(response.body.data.availability).toBe(false)
+        
+                expect(response.status).not.toBe(404)
+                expect(response.status).not.toBe(400)
+                expect(response.body).not.toHaveProperty('error')
+            })
+        } else {
+            it('should display validation errors', async () => {
+                const response = await request(server).patch(`/api/products/${type}/1`).send({});
+    
+                expect(response.status).toBe(400);
+                expect(response.body).toHaveProperty('errors');
+                expect(response.body.errors).toHaveLength(errors); // Ajusta este valor según las validaciones de tu backend
+                expect(response.status).not.toBe(404);
+            });
+        }
+    });
+};
+
+patchGeneral('price', 500, 3);
+patchGeneral('name', 'Uptempo', 1);
+patchGeneral('availability', true);
+
+
+
+describe(`PATCH /api/products/image/:id`, () => {
+    
     it('should check a valid ID in the URL', async () => {
-        const response = await request(server).patch('/api/products/name/not-valid-url/').send({name : "Uptempo"})
-
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(1)
-        expect(response.body.errors[0].msg).toBe("ID no válido")
-    })
+        const imagePath = uploadImageTest()
+        const response = await request(server)
+            .patch(`/api/products/image/:id`)
+            .set('Content-Type', 'multipart/form-data')
+            .attach('image', imagePath);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('errors');
+        expect(response.body.errors).toHaveLength(1);
+        expect(response.body.errors[0].msg).toBe("ID no válido");
+    });
 
     it('should return 404 response for a non-exist product', async () => {
-        const productId = 2000
-        const response = await request(server).patch(`/api/products/name/${productId}`).send({ 
-            name: 'new name',
-            availability: true,
-            price: 300
-        })
+        const imagePath = uploadImageTest()
+        const productId = 2000; // Un ID que no exista
+        const response = await request(server)
+            .patch(`/api/products/image/${productId}`)
+            .set('Content-Type', 'multipart/form-data')
+            .attach('image', imagePath);
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe("Producto no encontrado");
+        expect(response.body).not.toHaveProperty('data');
+    });
+});
 
-        expect(response.status).toBe(404)
-        expect(response.body.error).toBe("Producto no encontrado")
 
-        expect(response.status).not.toBe(200)
-        expect(response.body).not.toHaveProperty('data')
-    })
-
-    it('should display validation errors', async () => {
-        const response = await request(server).patch('/api/products/name/1').send({})
-
-        expect(response.status).toBe(400)
-        expect(response.body).toHaveProperty('errors')
-        expect(response.body.errors).toHaveLength(1)
-        
-        expect(response.status).not.toBe(404)
-    })
-})
+// -------------------------------------- DELETE ------------------------------------------
 
 describe('DELETE /api/products/:id', () => { 
     idNotValidate('delete')

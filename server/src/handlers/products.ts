@@ -133,6 +133,12 @@ export const updateImage = async (req: Request, res: Response) => {
         .webp({quality: 80})
         .toFile(outputPath)
         const product = await Product.findByPk(id);
+
+        if (!product) {
+            res.status(404).json({ error: 'Producto no encontrado' });
+            return 
+        }
+
         const oldImage = product.image
         const imageWebpPath = path.join("webp", oldImage)
 

@@ -149,12 +149,14 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
 
             <td className="p-3 text-lg text-gray-800">
                 <div className="flex justify-center">
-                    <img 
-                        className=" w-24 rounded-lg cursor-pointer" 
-                        src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`} 
-                        alt={`Imagen ${product.name}`} 
-                        onClick={openImage}
-                    />
+                    <div className="h-20 w-20 flex">
+                        <img 
+                            className=" w-24 rounded-lg cursor-pointer object-cover" 
+                            src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`} 
+                            alt={`Imagen ${product.name}`} 
+                            onClick={openImage}
+                        />
+                    </div>
                 </div>
             </td>
 
