@@ -10,7 +10,7 @@ export default function Layout() {
       </header>
       
       <main>
-        <div className='bg-gray-50 shadow mx-auto w-4/6 my-10 p-10 rounded-md'>
+        <div className='bg-gray-50 shadow my-10 p-10 rounded-md  md:mx-auto md:w-5/6 lg:w-4/6'>
             <Outlet/>
         </div>
       </main>
