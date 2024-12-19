@@ -4,3 +4,4 @@ node_modules/
 coverage/
 uploads/*
 webp/*
+package-lock.json
