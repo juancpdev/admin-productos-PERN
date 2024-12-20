@@ -3,6 +3,7 @@ import Product from "../models/Product.model";
 import sharp from 'sharp';
 import path from 'path';
 import fs from "fs/promises";
+import fss from 'fs';
 
 export const getProduct = async (req : Request, res : Response) => {
     const products = await Product.findAll({
@@ -27,16 +28,19 @@ export const getProductById = async (req: Request, res: Response) => {
 export const createProduct = async (req: Request, res: Response) => {
     const { name, price } = req.body;
     const originalPath = req.file.path; // Ruta del archivo cargado
-    const outputPath = path.join(
-        './webp',
-        `${path.parse(originalPath).name}.webp`
-    );
+    const webpFolderPath = './webp'; // Carpeta donde se guardarán las imágenes convertidas
+    const outputPath = path.join(webpFolderPath, `${path.parse(originalPath).name}.webp`);
 
     try {
-        // Procesar el archivo con sharp
+        // Verificar si la carpeta `webp` existe, y crearla si no
+        if (!fss.existsSync(webpFolderPath)) {
+            fss.mkdirSync(webpFolderPath, { recursive: true });
+        }
+
+        // Procesar el archivo con Sharp
         await sharp(originalPath)
-        .webp({quality: 80})
-        .toFile(outputPath)
+            .webp({ quality: 80 })
+            .toFile(outputPath);
 
         // Crear el producto en la base de datos
         const product = await Product.create({
@@ -47,8 +51,6 @@ export const createProduct = async (req: Request, res: Response) => {
 
         // Enviar la respuesta al cliente
         res.status(201).json({ data: product });
-
-
     } catch (error) {
         console.error('Error al crear el producto o procesar la imagen:', error);
         res.status(500).json({ error: 'Error al crear el producto o procesar la imagen' });
