@@ -3,6 +3,7 @@ import Product from "../models/Product.model";
 import sharp from 'sharp';
 import path from 'path';
 import fs from "fs/promises";
+import fss from "fs";
 
 export const getProduct = async (req : Request, res : Response) => {
     const products = await Product.findAll({
@@ -27,12 +28,18 @@ export const getProductById = async (req: Request, res: Response) => {
 export const createProduct = async (req: Request, res: Response) => {
     const { name, price } = req.body;
     const originalPath = req.file.path; // Ruta del archivo cargado
+    const webpFolderPath = './webp';
     const outputPath = path.join(
-        './webp',
+        webpFolderPath,
         `${path.parse(originalPath).name}.webp`
     );
 
     try {
+        // Verificar si la carpeta `webp` existe, y crearla si no
+        if (!fss.existsSync(webpFolderPath)) {
+            fss.mkdirSync(webpFolderPath, { recursive: true });
+        }
+        
         // Procesar el archivo con sharp
         await sharp(originalPath)
         .webp({quality: 80})
