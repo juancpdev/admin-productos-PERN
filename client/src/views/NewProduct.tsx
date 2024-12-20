@@ -5,14 +5,19 @@ import Errors from "../components/Errors";
 import { addProduct, ProductData } from "../services/ProductServices";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PulseLoader } from "react-spinners";
+import { useState } from "react";
 
 export default function NewProduct() {
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<ProductData>();
+    const [loader, setLoader] = useState(false)
     
     const onSubmit = async (data: ProductData) => {
+        setLoader(true)
         try {
             await addProduct(data);
+            setLoader(false)
             toast.success('Producto agregado');
             reset();
         } catch (error) {
@@ -88,11 +93,16 @@ export default function NewProduct() {
                         />
                         {errors.image && <Errors>{errors.image.message?.toString()}</Errors>}
                     </div>
-                    <input
-                    type="submit"
-                    className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded transition hover:bg-indigo-700"
-                    value="Registrar Producto"
-                    />
+                    <button
+                        type="submit"
+                        disabled={loader}
+                        className={`mt-5 w-full h-12 text-white font-bold text-lg rounded transition flex justify-center items-center 
+                            ${loader ? "bg-indigo-400 cursor-default" : "bg-indigo-600 hover:bg-indigo-700 "
+                          }`}
+                    >
+                        {loader ? <PulseLoader color="#ffffff"/> : "Registrar Productos"}
+                    </button>
+                    
                 </Form>
             </div>
         </>

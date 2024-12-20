@@ -50,14 +50,20 @@ export async function updateImageAction({ request }: ActionFunctionArgs) {
     // Llamada a la función que actualiza la imagen
     await updateImage(Number(id), image);
     toast.success('Imagen Actualizada')
-    return redirect("/");
+    return {
+      success: true, // Esto indica al frontend que la carga fue exitosa
+      redirectTo: "/" // Opcional, puedes redirigir aquí si lo necesitas
+    };
     
     
     // Redirige correctamente a "/asdsa"
   } catch (error) {
     // Manejo de errores
     console.error("Error al actualizar la imagen:", error);
-    return redirect("/error"); // O redirigir a una página de error si algo sale mal
+    return {
+      success: false,
+      error: "Error al actualizar la imagen"
+    };
   }
 }
 

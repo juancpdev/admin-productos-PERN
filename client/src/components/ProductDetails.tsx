@@ -129,6 +129,7 @@ export default function ProductDetails({ product, showToast }: ProductDetailsPro
                             src={`${import.meta.env.VITE_API_URL}/webp/${product.image}`}
                             alt={`Imagen ${product.name}`}
                         />
+                        
                     <ChangeImage 
                         product={product}
                     />
