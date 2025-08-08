@@ -2,7 +2,7 @@
 🔗 **URL:** [Stck](https://admin-productos-pern.vercel.app)
 
 ## 🛠️ Tecnologías
-- **Frontend:** React, Tailwind CSS
+- **Frontend:** React, TailwindCSS, TypeScript
 - **Backend:** Node.js, Express
 - **Base de datos:** PostgreSQL
 - **Others:** SuperTest & Swagger
