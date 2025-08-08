@@ -15,7 +15,8 @@ export default function Products() {
   };
   const products = useLoaderData() as Product[]
 
-  const isEmpty = useMemo(() => products.length > 0, [products])
+  const isEmpty = useMemo(() => (products?.length ?? 0) > 0, [products]);
+
 
   return (
     <>
